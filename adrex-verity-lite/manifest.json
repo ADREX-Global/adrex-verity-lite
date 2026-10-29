@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Adrex Verity Lite",
+  "version": "0.4.0",
+  "description": "AI answer trust assistant with Trust Score, evidence sources, source-quality labels, manual source checks, Vault, and report export.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Adrex Verity Lite"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ]
+}

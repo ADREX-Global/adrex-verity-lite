@@ -1,0 +1,1 @@
+chrome.runtime.onInstalled.addListener(()=>{chrome.contextMenus.create({id:"adrex-verify",title:"Verify selected text with Adrex Verity",contexts:["selection"]})});chrome.contextMenus.onClicked.addListener(info=>{if(info.menuItemId==="adrex-verify"&&info.selectionText)chrome.storage.local.set({pendingSelection:info.selectionText})});
