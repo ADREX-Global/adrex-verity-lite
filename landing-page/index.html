@@ -10,7 +10,7 @@
 .wrap{max-width:1080px;margin:auto;padding:24px}
 nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
 .logo{display:flex;gap:10px;align-items:center;font-weight:800}.mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6366f1,#a855f7);display:grid;place-items:center;color:#fff}
-.hero{padding:70px 0 50px;max-width:760px}
+.hero{padding:70px 0 50px;max-width:800px}
 h1{font-size:clamp(34px,6vw,58px);line-height:1.08;margin:0 0 18px}
 .accent{background:linear-gradient(90deg,#818cf8,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent}
 p.lead{font-size:19px;color:#9ca3af;line-height:1.6}
@@ -20,17 +20,21 @@ p.lead{font-size:19px;color:#9ca3af;line-height:1.6}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:50px 0}
 .card{background:#111827;border:1px solid #1f2937;border-radius:18px;padding:22px}
 .card h3{margin:0 0 8px}.card p{margin:0;color:#9ca3af;font-size:14px;line-height:1.6}
+.steps{background:#111827;border:1px solid #1f2937;border-radius:18px;padding:26px;margin:40px 0}
+.steps h2{margin-top:0}.steps ol{color:#9ca3af;line-height:1.8;padding-left:20px}
+code{background:#1f2937;padding:2px 6px;border-radius:6px;font-size:13px}
 .note{background:#111827;border:1px solid #1f2937;border-radius:18px;padding:22px;color:#9ca3af;font-size:14px}
 footer{padding:30px 0;color:#6b7280;font-size:13px;border-top:1px solid #1f2937;margin-top:50px}
+a{color:#a5b4fc}
 </style>
 </head>
 <body>
 <div class="wrap">
-<nav><div class="logo"><div class="mark">A</div>Adrex Verity</div><a class="btn ghost" href="https://github.com/">GitHub</a></nav>
+<nav><div class="logo"><div class="mark">A</div>Adrex Verity</div><a class="btn ghost" href="https://github.com/ADREX-Global/adrex-verity-lite">GitHub</a></nav>
 <section class="hero">
 <h1>Know what to <span class="accent">trust</span> before you use it.</h1>
 <p class="lead">Adrex Verity is a local-first AI answer trust assistant. Paste an answer from ChatGPT, Claude, Gemini, Grok, or Perplexity, then review claims, evidence, and risk before you act.</p>
-<div class="cta"><a class="btn primary" href="https://github.com/">Get the free extension</a><a class="btn ghost" href="#features">See features</a></div>
+<div class="cta"><a class="btn primary" href="https://github.com/ADREX-Global/adrex-verity-lite">Get the free extension</a><a class="btn ghost" href="#install">How to install</a></div>
 </section>
 <section id="features" class="grid">
 <div class="card"><h3>Trust Score</h3><p>Get a simple 0–100 score with a clear explanation of why an AI answer may need verification.</p></div>
@@ -39,6 +43,20 @@ footer{padding:30px 0;color:#6b7280;font-size:13px;border-top:1px solid #1f2937;
 <div class="card"><h3>Private by design</h3><p>Your checks and Vault stay in your browser. No account is required.</p></div>
 <div class="card"><h3>Manual evidence</h3><p>Add a trusted government, medical, academic, or news source to strengthen your review.</p></div>
 <div class="card"><h3>Export reports</h3><p>Download a Markdown report for research, study, client work, or team review.</p></div>
+</section>
+<section id="install" class="steps">
+<h2>Install Adrex Verity Lite</h2>
+<ol>
+<li>Open the <a href="https://github.com/ADREX-Global/adrex-verity-lite" target="_blank" rel="noopener">Adrex Verity GitHub repository</a>.</li>
+<li>Click the green <strong>Code</strong> button.</li>
+<li>Click <strong>Download ZIP</strong>.</li>
+<li>Extract the downloaded ZIP file.</li>
+<li>Open Chrome or Edge and go to <code>chrome://extensions</code> or <code>edge://extensions</code>.</li>
+<li>Turn on <strong>Developer mode</strong>.</li>
+<li>Click <strong>Load unpacked</strong>.</li>
+<li>Select the inner folder named <code>adrex-verity-lite</code>.</li>
+<li>Pin Adrex Verity to your toolbar and paste any AI answer to verify it.</li>
+</ol>
 </section>
 <section class="note"><strong>Honest disclaimer:</strong> Adrex Verity does not prove an answer is true and does not provide medical, legal, financial, or safety advice. It helps you check evidence and make more careful decisions.</section>
 <footer>© 2026 Adrex Verity. Open-source, local-first AI trust tooling.</footer>
