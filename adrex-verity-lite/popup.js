@@ -3,14 +3,47 @@ const RISK=["cure","guaranteed","100%","always","never","legal advice","medical 
 const HEDGES=["may","might","could","possibly","likely","reportedly","some studies","experts say","according to"];
 const STOP=new Set(["the","a","an","and","or","but","is","are","was","were","be","been","to","of","in","on","for","with","by","from","as","at","that","this","it","its","their","there","has","have","had","can","could","will","would","should","may","might","not","no","yes","if","then","than","so","such","about","into","over","after","before","between","more","most","some","any","all","every","each","show","shows","study","studies","according"]);
 const TRUSTED={gov:["who.int","cdc.gov","nih.gov","fda.gov","gov.in","nic.in","un.org","europa.eu"],medical:["mayoclinic.org","clevelandclinic.org","nhs.uk","healthline.com"],academic:["edu","scholar.google.com","nature.com","science.org","springer.com","sciencedirect.com"],news:["reuters.com","apnews.com","bbc.com","thehindu.com","indianexpress.com","nytimes.com","theguardian.com"],wiki:["wikipedia.org"]};
-const answerEl=document.getElementById("answer"),statusEl=document.getElementById("status"),resultEl=document.getElementById("result"),verifyBtn=document.getElementById("verify"),clearBtn=document.getElementById("clear"),saveBtn=document.getElementById("save"),exportBtn=document.getElementById("export"),openVaultBtn=document.getElementById("openVault"),closeVaultBtn=document.getElementById("closeVault"),vaultEl=document.getElementById("vault"),vaultItems=document.getElementById("vaultItems"),vaultSearch=document.getElementById("vaultSearch");let current=null;
-verifyBtn.onclick=verify;clearBtn.onclick=()=>{answerEl.value="";resultEl.classList.add("hidden");statusEl.classList.add("hidden")};saveBtn.onclick=saveToVault;exportBtn.onclick=exportReport;openVaultBtn.onclick=openVault;closeVaultBtn.onclick=()=>vaultEl.classList.add("hidden");document.getElementById("addSource").onclick=addManualSource;vaultSearch.oninput=openVault;
-chrome.storage.local.get(["pendingSelection"],d=>{if(d.pendingSelection){answerEl.value=d.pendingSelection;chrome.storage.local.remove("pendingSelection")}});
+const answerEl=document.getElementById("answer"),statusEl=document.getElementById("status"),resultEl=document.getElementById("result"),verifyBtn=document.getElementById("verify"),clearBtn=document.getElementById("clear"),saveBtn=document.getElementById("save"),exportBtn=document.getElementById("export"),openVaultBtn=document.getElementById("openVault"),closeVaultBtn=document.getElementById("closeVault"),vaultEl=document.getElementById("vault"),vaultItems=document.getElementById("vaultItems"),vaultSearch=document.getElementById("vaultSearch"),privacyResults=document.getElementById("privacyResults"),privacyCount=document.getElementById("privacyCount");
+let current=null;
+verifyBtn.onclick=verify;clearBtn.onclick=()=>{answerEl.value="";resultEl.classList.add("hidden");statusEl.classList.add("hidden");runPrivacy();};
+saveBtn.onclick=saveToVault;exportBtn.onclick=exportReport;openVaultBtn.onclick=openVault;closeVaultBtn.onclick=()=>vaultEl.classList.add("hidden");
+document.getElementById("addSource").onclick=addManualSource;document.getElementById("redact").onclick=redactSensitive;document.getElementById("copyClean").onclick=copyClean;vaultSearch.oninput=openVault;
+answerEl.addEventListener("input",runPrivacy);
+chrome.storage.local.get(["pendingSelection"],d=>{if(d.pendingSelection){answerEl.value=d.pendingSelection;chrome.storage.local.remove("pendingSelection");runPrivacy();}});
 const tokenize=t=>t.toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w=>w.length>2&&!STOP.has(w));
 const splitClaims=t=>t.replace(/\s+/g," ").split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(s=>s.length>25).slice(0,8);
 function cleanQuery(c){let q=c.toLowerCase().replace(/guaranteed to|guaranteed|guarantees/g,"").replace(/\b\d{1,3}%\b/g,"").replace(/cure[sd]?|curing/g,"treatment").replace(/works for everyone|for everyone|miracle|secret remedy/g,"").replace(/studies show|studies say|according to|experts say/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();return tokenize(q).slice(0,8).join(" ")||c.slice(0,80)}
 function relevance(c,i){const a=new Set(tokenize(cleanQuery(c))),b=new Set(tokenize((i.title||"")+" "+(i.snippet||"")));if(!a.size||!b.size)return 0;let h=0;a.forEach(w=>{if(b.has(w))h++});return Math.round(h/a.size*100)}
 function classify(url){try{const h=new URL(url).hostname.replace(/^www\./,"");for(const[k,v]of Object.entries(TRUSTED)){if(v.some(d=>h===d||h.endsWith("."+d)||h.endsWith(d)))return k}if(h.endsWith(".gov"))return"gov";if(h.endsWith(".edu"))return"academic";return"other"}catch(e){return"other"}}
+function findSensitive(text){
+ const out=[];
+ const email=/(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+ const phone=/(?:\+?\d[\d\s().-]{7,}\d)/g;
+ const card=/\b(?:\d[ -]*?){13,19}\b/g;
+ const key=/\b(?:sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})\b/g;
+ const id=/\b[A-Z]{3}\d{4,}\b/g;
+ (text.match(email)||[]).forEach(x=>out.push({type:"Email",value:x,level:"high"}));
+ (text.match(key)||[]).forEach(x=>out.push({type:"API key / token",value:x,level:"high"}));
+ (text.match(card)||[]).forEach(x=>out.push({type:"Possible card number",value:x,level:"high"}));
+ (text.match(phone)||[]).forEach(x=>{if(/\d{7,}/.test(x.replace(/\D/g,"")))out.push({type:"Phone number",value:x.trim(),level:"medium"})});
+ (text.match(id)||[]).forEach(x=>out.push({type:"Possible ID",value:x,level:"medium"}));
+ return out;
+}
+function runPrivacy(){
+ const text=answerEl.value.trim();const items=findSensitive(text);
+ privacyCount.textContent=`${items.length} risk${items.length===1?"":"s"}`;
+ privacyResults.innerHTML="";
+ if(!items.length){privacyResults.innerHTML=`<div class="empty">No obvious sensitive data detected. Privacy Guard checks locally only.</div>`;return}
+ items.slice(0,12).forEach(i=>{const d=document.createElement("div");d.className=`privacy-item ${i.level==="high"?"risk-high":"risk-medium"}`;d.innerHTML=`<div><b>${i.type}</b><div>${esc(mask(i.value))}</div></div><span class="relevance">${i.level}</span>`;privacyResults.appendChild(d)});
+}
+function mask(v){if(v.length<=8)return "*".repeat(v.length);return v.slice(0,3)+"•".repeat(Math.max(3,v.length-6))+v.slice(-3)}
+function redactSensitive(){const text=answerEl.value;if(!text)return showStatus("Paste text first.");
+ let clean=text.replace(/(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,"[EMAIL REDACTED]");
+ clean=clean.replace(/\b(?:sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})\b/g,"[API KEY REDACTED]");
+ clean=clean.replace(/\b(?:\d[ -]*?){13,19}\b/g,"[CARD NUMBER REDACTED]");
+ clean=clean.replace(/(?:\+?\d[\d\s().-]{7,}\d)/g,m=>/\d{7,}/.test(m.replace(/\D/g,""))?"[PHONE REDACTED]":m);
+ answerEl.value=clean;runPrivacy();showStatus("Sensitive data redacted locally.");}
+async function copyClean(){const text=answerEl.value.trim();if(!text)return;await navigator.clipboard.writeText(text);showStatus("Cleaned text copied.");}
 async function wikiSearch(q){const u=`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&srlimit=6&format=json&origin=*`;const r=await fetch(u);if(!r.ok)throw 0;const d=await r.json();return(d.query?.search||[]).map(x=>({type:"wiki",title:x.title,snippet:x.snippet.replace(/<[^>]+>/g,""),url:`https://en.wikipedia.org/wiki/${encodeURIComponent(x.title.replace(/ /g,"_"))}`}))}
 async function newsSearch(q){const u=`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;const r=await fetch(u);if(!r.ok)throw 0;const x=new DOMParser().parseFromString(await r.text(),"text/xml");return[...x.querySelectorAll("item")].slice(0,8).map(i=>({type:"news",title:i.querySelector("title")?.textContent||"News",snippet:(i.querySelector("description")?.textContent||"").replace(/<[^>]+>/g,"").slice(0,240),url:i.querySelector("link")?.textContent||"#"}))}
 async function verify(){const text=answerEl.value.trim();if(!text)return showStatus("Paste an AI answer first.");verifyBtn.disabled=true;verifyBtn.textContent="Checking…";resultEl.classList.add("hidden");showStatus("Checking evidence…");

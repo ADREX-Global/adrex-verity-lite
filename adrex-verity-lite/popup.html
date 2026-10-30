@@ -1,13 +1,24 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"></head><body>
-<header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity</h1><p>AI Answer Trust Assistant</p></div></div><span class="badge">v0.4</span></header>
-<main><section class="input-card"><label for="answer">Paste an AI answer</label><textarea id="answer"></textarea><div class="actions"><button id="verify">Verify answer</button><button id="clear" class="ghost">Clear</button></div></section>
+<header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity</h1><p>AI Answer Trust Assistant</p></div></div><span class="badge">v0.5</span></header>
+<main>
+<section class="input-card"><label for="answer">Paste an AI answer</label><textarea id="answer"></textarea>
+<div class="actions"><button id="verify">Verify answer</button><button id="clear" class="ghost">Clear</button></div>
+<div class="privacy">
+<div class="section-head"><h2>Privacy Guard</h2><span id="privacyCount" class="count">0 risks</span></div>
+<div id="privacyResults" class="privacy-results"><div class="empty">Paste text above to check for emails, phone numbers, card-like numbers, and API keys.</div></div>
+<div class="actions"><button id="redact" class="secondary">Redact sensitive data</button><button id="copyClean" class="ghost">Copy cleaned text</button></div>
+</div>
+</section>
 <div id="status" class="status hidden"></div>
-<section id="result" class="hidden"><div class="score-card"><div><div class="score-row"><span id="score">--</span><span class="score-label">/100</span></div><span class="score-sub">Trust Score</span></div><div class="right"><span id="verdict"></span><span id="scoreReason" class="small"></span></div></div>
+<section id="result" class="hidden">
+<div class="score-card"><div><div class="score-row"><span id="score">--</span><span class="score-label">/100</span></div><span class="score-sub">Trust Score</span></div><div class="right"><span id="verdict"></span><span id="scoreReason" class="small"></span></div></div>
 <div class="section-head"><h2>Detected claims</h2><span id="claimCount" class="count"></span></div><div id="claims"></div>
 <div class="section-head"><h2>Evidence sources</h2><span id="sourceCount" class="count"></span></div><div id="sources"></div>
 <div id="risk" class="risk hidden"></div>
 <div class="manual"><h3>Add a source manually</h3><input id="manualUrl" placeholder="https://example.com/source"><input id="manualTitle" placeholder="Source title"><textarea id="manualSnippet" placeholder="Paste a short quote or summary"></textarea><button id="addSource" class="secondary">Add to evidence</button></div>
 <div class="actions"><button id="export" class="ghost">Export report</button><button id="save" class="secondary">Save to Vault</button></div></section>
 <section id="vault" class="hidden"><div class="section-head"><h2>Local Vault</h2><button id="closeVault" class="link">Close</button></div><input id="vaultSearch" placeholder="Search saved checks..."><div id="vaultItems"></div></section>
-<button id="openVault" class="ghost full">Open local Vault</button></main>
-<footer>Adrex Verity does not prove an answer is true. It helps you check evidence before acting.</footer><script src="popup.js"></script></body></html>
+<button id="openVault" class="ghost full">Open local Vault</button>
+</main>
+<footer>Adrex Verity processes Privacy Guard checks locally. It does not prove an answer is true.</footer>
+<script src="popup.js"></script></body></html>
