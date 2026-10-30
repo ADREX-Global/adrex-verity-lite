@@ -15,7 +15,6 @@ label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:#3741
 .tag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 6px;border-radius:999px;margin-right:6px}.gov{background:#ecfdf5;color:#047857}.medical{background:#eff6ff;color:#1d4ed8}.academic{background:#f5f3ff;color:#6d28d9}.news{background:#fff7ed;color:#9a3412}.wiki{background:#f3f4f6;color:#374151}.other{background:#f3f4f6;color:#374151}
 .quality{display:flex;gap:6px;flex-wrap:wrap}.quality-chip{font-size:10px;font-weight:700;padding:4px 8px;border-radius:999px;background:#fff;border:1px solid #e5e7eb}
 .privacy-item{display:flex;justify-content:space-between;gap:8px}.privacy-item b{font-size:11px}.risk-high{border-color:#fecaca;background:#fef2f2}.risk-medium{border-color:#fde68a;background:#fffbeb}
-.risk{margin-top:14px;padding:11px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px}.manual{margin-top:14px;padding:12px}.vault-item b{display:block;font-size:12px;margin-bottom:3px}
-.vault-item{position:relative}.delete{position:absolute;top:8px;right:8px;background:#fee2e2;color:#b91c1c;font-size:10px;padding:4px 7px}
+.risk{margin-top:14px;padding:11px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px}.manual{margin-top:14px;padding:12px}
 .empty{font-size:11px;color:#6b7280;text-align:center;padding:12px;background:#fafafa;border:1px dashed #d1d5db;border-radius:10px}
 .privacy{margin-top:12px;padding:12px}footer{padding:9px;font-size:9px;color:#6b7280;background:#fff;border-top:1px solid #e5e7eb;text-align:center}

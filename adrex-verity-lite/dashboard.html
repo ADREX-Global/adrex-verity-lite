@@ -1,9 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="dashboard.css"><title>Adrex Verity Dashboard</title></head><body>
 <header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity Dashboard</h1><p>Your local verification history</p></div></div><button id="exportAll" class="btn">Export all as Markdown</button></header>
-<main>
-<section class="controls"><input id="search" placeholder="Search answers and claims..."><select id="filter"><option value="all">All scores</option><option value="high">Mostly supported (75+)</option><option value="medium">Needs verification (55–74)</option><option value="low">High risk (below 55)</option></select><button id="refresh" class="btn ghost">Refresh</button></section>
-<div id="stats" class="stats"></div>
-<div id="items"></div>
-</main>
+<main><section class="controls"><input id="search" placeholder="Search answers and claims..."><select id="filter"><option value="all">All scores</option><option value="high">Mostly supported (75+)</option><option value="medium">Needs verification (55–74)</option><option value="low">High risk (below 55)</option></select><button id="refresh" class="btn ghost">Refresh</button></section>
+<div id="stats" class="stats"></div><div id="items"></div></main>
 <footer>All dashboard data remains stored locally in your browser.</footer>
 <script src="dashboard.js"></script></body></html>

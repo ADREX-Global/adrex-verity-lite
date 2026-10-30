@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="compare.css"><title>Adrex Verity — Compare AI Models</title></head><body>
+<header><div class="brand"><div class="logo">A</div><div><h1>Compare AI Models</h1><p>Paste answers from different AI tools and compare their agreement</p></div></div><button id="back" class="btn ghost">Back</button></header>
+<main>
+<section class="card"><h2>Question / prompt</h2><textarea id="question" placeholder="Paste the question you asked the AI models..."></textarea></section>
+<section class="grid">
+<div class="card"><h2>Model A</h2><textarea id="a" placeholder="Paste ChatGPT answer..."></textarea></div>
+<div class="card"><h2>Model B</h2><textarea id="b" placeholder="Paste Claude answer..."></textarea></div>
+<div class="card"><h2>Model C</h2><textarea id="c" placeholder="Paste Gemini answer..."></textarea></div>
+<div class="card"><h2>Model D</h2><textarea id="d" placeholder="Paste Grok or Perplexity answer..."></textarea></div>
+</section>
+<div class="actions"><button id="compare" class="btn primary">Compare answers</button><button id="clear" class="btn ghost">Clear</button></div>
+<div id="result" class="hidden">
+<div class="card"><h2>Consensus</h2><div id="consensus"></div><p id="consensusNote"></p></div>
+<div class="card"><h2>Shared points</h2><ul id="shared"></ul></div>
+<div class="card"><h2>Unique points</h2><div id="unique"></div></div>
+</div>
+</main>
+<footer>Comparison runs locally. Adrex does not prove any answer is true.</footer>
+<script src="compare.js"></script></body></html>

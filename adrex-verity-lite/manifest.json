@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Adrex Verity Lite",
-  "version": "0.7.0",
-  "description": "AI answer trust assistant with Full Dashboard, improved source quality, Privacy Guard, evidence sources, Vault, and report export.",
+  "version": "0.8.0",
+  "description": "AI answer trust assistant with multi-model comparison, Full Dashboard, Privacy Guard, evidence sources, Vault, and report export.",
   "permissions": [
     "storage",
     "activeTab",

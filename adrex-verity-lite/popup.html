@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"></head><body>
-<header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity</h1><p>AI Answer Trust Assistant</p></div></div><span class="badge">v0.7</span></header>
+<header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity</h1><p>AI Answer Trust Assistant</p></div></div><span class="badge">v0.8</span></header>
 <main>
 <section class="input-card"><label for="answer">Paste an AI answer</label><textarea id="answer"></textarea>
 <div class="actions"><button id="verify">Verify answer</button><button id="clear" class="ghost">Clear</button></div>
@@ -14,7 +14,7 @@
 <div id="risk" class="risk hidden"></div>
 <div class="manual"><h3>Add a source manually</h3><input id="manualUrl" placeholder="https://example.com/source"><input id="manualTitle" placeholder="Source title"><textarea id="manualSnippet" placeholder="Paste a short quote or summary"></textarea><button id="addSource" class="secondary">Add to evidence</button></div>
 <div class="actions"><button id="export" class="ghost">Export report</button><button id="save" class="secondary">Save to Vault</button></div></section>
-<button id="openDashboard" class="primary full">Open Full Dashboard</button>
+<div class="actions"><button id="openCompare" class="secondary">Compare AI models</button><button id="openDashboard" class="primary" style="flex:1">Open Full Dashboard</button></div>
 </main>
 <footer>Adrex Verity processes Privacy Guard checks locally. It does not prove an answer is true.</footer>
 <script src="popup.js"></script></body></html>
