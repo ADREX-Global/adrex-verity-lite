@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Adrex Verity Lite",
   "version": "0.9.0",
-  "description": "Check AI answers before you trust them: Trust Score, claims, evidence sources, Privacy Guard, comparisons, and local Vault.",
+  "description": "AI answer trust assistant: per-claim verdicts, evidence, Stakes Guard, Privacy Guard, comparisons, Dashboard, and local Vault.",
   "permissions": [
     "storage",
     "activeTab",
