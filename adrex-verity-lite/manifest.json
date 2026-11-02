@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Adrex Verity Lite",
-  "version": "0.9.0",
-  "description": "AI answer trust assistant: per-claim verdicts, evidence, Stakes Guard, Privacy Guard, comparisons, Dashboard, and local Vault.",
+  "version": "0.10.1",
+  "description": "AI answer trust assistant: per-claim verdicts, Sanity Engine, honest Link Reality Check, Stakes Guard, Privacy Guard, comparisons, Dashboard, and local Vault.",
   "permissions": [
     "storage",
     "activeTab",

@@ -1,9 +1,11 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"></head><body>
-<header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity</h1><p>AI Answer Trust Assistant</p></div></div><span class="badge">v0.9</span></header>
+<header><div class="brand"><div class="logo">A</div><div><h1>Adrex Verity</h1><p>AI Answer Trust Assistant</p></div></div><span class="badge">v0.10.1</span></header>
 <main>
 <section class="input-card"><label for="answer">Paste an AI answer</label><textarea id="answer"></textarea>
 <div class="actions"><button id="verify">Check claims</button><button id="clear" class="ghost">Clear</button></div>
 <div class="privacy"><div class="section-head"><h2>Privacy Guard</h2><span id="privacyCount" class="count">0 risks</span></div><div id="privacyResults" class="privacy-results"><div class="empty">Paste text above to check for emails, phone numbers, card-like numbers, and API keys.</div></div><div class="actions"><button id="redact" class="secondary">Redact sensitive data</button><button id="copyClean" class="ghost">Copy cleaned text</button></div></div>
+<div class="privacy"><div class="section-head"><h2>Sanity Engine</h2><span id="sanityCount" class="count">0 findings</span></div><div id="sanityResults" class="privacy-results"><div class="empty">Paste text above to check math, dates, self-contradictions, and overconfident wording.</div></div></div>
+<div class="privacy"><div class="section-head"><h2>Link Reality Check</h2><span id="linkCount" class="count">0 links</span></div><div id="linkResults" class="privacy-results"><div class="empty">Paste text above to find links. Checking a link sends only its URL to the site.</div></div><div class="actions"><button id="checkLinks" class="secondary">Check all links</button></div></div>
 </section>
 <div id="status" class="status hidden"></div>
 <section id="result" class="hidden">

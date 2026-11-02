@@ -2,20 +2,21 @@
 const RISK=["cure","guaranteed","100%","always","never","legal advice","medical advice","invest","stock","crypto","loan","visa","citizenship","hack","bomb","weapon","miracle"];
 const HEDGES=["may","might","could","possibly","likely","reportedly","some studies","experts say","according to"];
 const CONTRA=["not","does not","no evidence","false","incorrect","myth","debunked","contrary"];
-const STOP=new Set(["the","a","an","and","or","but","is","are","was","were","be","been","to","of","in","on","for","with","by","from","as","at","that","this","it","its","their","there","has","have","had","can","could","will","would","should","may","might","not","no","yes","if","then","than","so","such","about","into","over","after","before","between","more","most","some","any","all","every","each","show","shows","study","studies","according"]);
+const STOP=new Set(["the","a","an","and","or","but","is","are","was","were","be","been","to","of","in","on","for","with","by","from","as","at","that","this","it","its","their","there","has","have","had","can","could","will","would","should","may","might","not","no","yes","if","then","than","so","such","about","into","over","after","before","between","more","most","some","any","all","every","each","show","shows","study","studies","according","increased","increase","decrease","earned","rupees","last","year","method","work","everyone","read","more"]);
 const TRUSTED={gov:["who.int","cdc.gov","nih.gov","fda.gov","gov.in","nic.in","un.org","europa.eu"],medical:["mayoclinic.org","clevelandclinic.org","nhs.uk","healthline.com"],academic:["edu","scholar.google.com","nature.com","science.org","springer.com","sciencedirect.com"],news:["reuters.com","apnews.com","bbc.com","thehindu.com","indianexpress.com","nytimes.com","theguardian.com"],wiki:["wikipedia.org"]};
 const QUALITY_WEIGHT={gov:22,medical:18,academic:16,news:8,wiki:4,other:0};
-const answerEl=document.getElementById("answer"),statusEl=document.getElementById("status"),resultEl=document.getElementById("result"),verifyBtn=document.getElementById("verify"),clearBtn=document.getElementById("clear"),saveBtn=document.getElementById("save"),exportBtn=document.getElementById("export"),openDashboardBtn=document.getElementById("openDashboard"),openCompareBtn=document.getElementById("openCompare"),privacyResults=document.getElementById("privacyResults"),privacyCount=document.getElementById("privacyCount"),stakesEl=document.getElementById("stakes");
+const answerEl=document.getElementById("answer"),statusEl=document.getElementById("status"),resultEl=document.getElementById("result"),verifyBtn=document.getElementById("verify"),clearBtn=document.getElementById("clear"),saveBtn=document.getElementById("save"),exportBtn=document.getElementById("export"),openDashboardBtn=document.getElementById("openDashboard"),openCompareBtn=document.getElementById("openCompare"),privacyResults=document.getElementById("privacyResults"),privacyCount=document.getElementById("privacyCount"),stakesEl=document.getElementById("stakes"),sanityResults=document.getElementById("sanityResults"),sanityCount=document.getElementById("sanityCount"),linkResults=document.getElementById("linkResults"),linkCount=document.getElementById("linkCount");
 let current=null;
-verifyBtn.onclick=verify;clearBtn.onclick=()=>{answerEl.value="";resultEl.classList.add("hidden");statusEl.classList.add("hidden");stakesEl.classList.add("hidden");runPrivacy();};
+verifyBtn.onclick=verify;clearBtn.onclick=()=>{answerEl.value="";resultEl.classList.add("hidden");statusEl.classList.add("hidden");stakesEl.classList.add("hidden");runPrivacy();runSanity();runLinks();};
 saveBtn.onclick=saveToVault;exportBtn.onclick=exportReport;openDashboardBtn.onclick=()=>chrome.tabs.create({url:chrome.runtime.getURL("dashboard.html")});
 openCompareBtn.onclick=()=>{if(answerEl.value.trim())chrome.storage.local.set({compareSeed:answerEl.value.trim()});chrome.tabs.create({url:chrome.runtime.getURL("compare.html")})};
-document.getElementById("addSource").onclick=addManualSource;document.getElementById("redact").onclick=redactSensitive;document.getElementById("copyClean").onclick=copyClean;
-answerEl.addEventListener("input",runPrivacy);
-chrome.storage.local.get(["pendingSelection"],d=>{if(d.pendingSelection){answerEl.value=d.pendingSelection;chrome.storage.local.remove("pendingSelection");runPrivacy();}});
+document.getElementById("addSource").onclick=addManualSource;document.getElementById("redact").onclick=redactSensitive;document.getElementById("copyClean").onclick=copyClean;document.getElementById("checkLinks").onclick=checkAllLinks;
+answerEl.addEventListener("input",()=>{runPrivacy();runSanity();runLinks();});
+chrome.storage.local.get(["pendingSelection"],d=>{if(d.pendingSelection){answerEl.value=d.pendingSelection;chrome.storage.local.remove("pendingSelection");runPrivacy();runSanity();runLinks();}});
 const tokenize=t=>t.toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w=>w.length>2&&!STOP.has(w));
 const splitClaims=t=>t.replace(/\s+/g," ").split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(s=>s.length>25).slice(0,10);
 function cleanQuery(c){let q=c.toLowerCase().replace(/guaranteed to|guaranteed|guarantees/g,"").replace(/\b\d{1,3}%\b/g,"").replace(/cure[sd]?|curing/g,"treatment").replace(/works for everyone|for everyone|miracle|secret remedy/g,"").replace(/studies show|studies say|according to|experts say/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();return tokenize(q).slice(0,8).join(" ")||c.slice(0,80)}
+function buildQuery(claims,text){const freq={};claims.forEach(c=>tokenize(cleanQuery(c)).forEach(w=>freq[w]=(freq[w]||0)+1));return Object.keys(freq).sort((a,b)=>freq[b]-freq[a]).slice(0,8).join(" ")||text.slice(0,140)}
 function relevance(c,i){const a=new Set(tokenize(cleanQuery(c))),b=new Set(tokenize((i.title||"")+" "+(i.snippet||"")));if(!a.size||!b.size)return 0;let h=0;a.forEach(w=>{if(b.has(w))h++});return Math.round(h/a.size*100)}
 function classify(url){try{const h=new URL(url).hostname.replace(/^www\./,"");for(const[k,v]of Object.entries(TRUSTED)){if(v.some(d=>h===d||h.endsWith("."+d)||h.endsWith(d)))return k}if(h.endsWith(".gov"))return"gov";if(h.endsWith(".edu"))return"academic";return"other"}catch(e){return"other"}}
 function claimType(c){const l=c.toLowerCase();if(/doi|pmid|arxiv|et al|journal|paper/i.test(c))return"citation";if(/section|act|ipc|crpc|cpc|constitution|court|case/i.test(c))return"legal-case";if(/health|disease|diabetes|cancer|medicine|symptom/i.test(c))return"medical";if(/invest|stock|crypto|loan|rupee|dollar|finance/i.test(c))return"finance";if(/\d/.test(c))return"numeric";if(/https?:\/\//.test(c))return"link";return"general"}
@@ -28,36 +29,52 @@ items.slice(0,12).forEach(i=>{const d=document.createElement("div");d.className=
 function mask(v){if(v.length<=8)return"*".repeat(v.length);return v.slice(0,3)+"•".repeat(Math.max(3,v.length-6))+v.slice(-3)}
 function redactSensitive(){const text=answerEl.value;if(!text)return showStatus("Paste text first.");let clean=text.replace(/(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,"[EMAIL REDACTED]").replace(/\b(?:sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})\b/g,"[API KEY REDACTED]").replace(/\b(?:\d[ -]*?){13,19}\b/g,"[CARD NUMBER REDACTED]").replace(/(?:\+?\d[\d\s().-]{7,}\d)/g,m=>/\d{7,}/.test(m.replace(/\D/g,""))?"[PHONE REDACTED]":m);answerEl.value=clean;runPrivacy();showStatus("Sensitive data redacted locally.")}
 async function copyClean(){const text=answerEl.value.trim();if(!text)return;await navigator.clipboard.writeText(text);showStatus("Cleaned text copied.")}
+function runSanity(){const text=answerEl.value.trim();const out=[];
+const pcts=[...text.matchAll(/(\d{1,3})\s?%/g)].map(m=>+m[1]);
+if(pcts.some(p=>p>100))out.push({kind:"Impossible percentage",detail:"A percentage above 100% was found."});
+const math=[...text.matchAll(/(\d+)\s*(?:\+|-|plus|minus)\s*(\d+)\s*(?:=|equals|is)\s*(\d+)/gi)];
+math.forEach(m=>{const a=+m[1],b=+m[2],c=+m[3];const op=/-|minus/i.test(m[0])?a-b:a+b;if(op!==c)out.push({kind:"Math does not add up",detail:`"${m[0].trim()}" does not calculate correctly.`})});
+const years=[...text.matchAll(/\b(1[5-9]\d{2}|20\d{2})\b/g)].map(m=>+m[1]);
+if(years.some(y=>y>new Date().getFullYear()+1))out.push({kind:"Future date",detail:"A date beyond next year was found."});
+if(/guaranteed|100%|always|never|proven|miracle/i.test(text))out.push({kind:"Overconfident wording",detail:"Absolute or overconfident language was found."});
+const lower=text.toLowerCase();
+if(/increase/.test(lower)&&/decrease/.test(lower))out.push({kind:"Possible self-contradiction",detail:"The answer mentions both increase and decrease; check the context."});
+sanityCount.textContent=`${out.length} finding${out.length===1?"":"s"}`;sanityResults.innerHTML="";
+if(!out.length){sanityResults.innerHTML=`<div class="empty">No obvious sanity problems detected.</div>`;return}
+out.slice(0,8).forEach(i=>{const d=document.createElement("div");d.className="privacy-item risk-medium";d.innerHTML=`<div><b>${i.kind}</b><div>${esc(i.detail)}</div></div>`;sanityResults.appendChild(d)})}
+function extractLinks(text){return [...new Set((text.match(/https?:\/\/[^\s)<>"']+/g)||[]))].slice(0,10)}
+function runLinks(){const text=answerEl.value.trim();const links=extractLinks(text);linkCount.textContent=`${links.length} link${links.length===1?"":"s"}`;linkResults.innerHTML="";
+if(!links.length){linkResults.innerHTML=`<div class="empty">No links found in the pasted answer.</div>`;return}
+links.forEach(u=>{const d=document.createElement("div");d.className="privacy-item";d.innerHTML=`<div style="min-width:0"><b>Link</b><div style="word-break:break-all">${esc(u)}</div></div><span class="relevance" data-url="${esc(u)}">Not checked</span>`;linkResults.appendChild(d)})}
+async function checkAllLinks(){const text=answerEl.value.trim();const links=extractLinks(text);if(!links.length)return showStatus("No links to check.");
+showStatus("Checking links…");
+for(const u of links){const chip=[...linkResults.querySelectorAll(".relevance")].find(c=>c.dataset.url===u);if(!chip)continue;chip.textContent="Checking…";
+try{await fetch(u,{mode:"no-cors",cache:"no-store"});chip.textContent="Responded (existence not verified)";chip.style.background="#fef9c3";chip.style.color="#854d0e"}
+catch(e){chip.textContent="Unreachable";chip.style.background="#fee2e2";chip.style.color="#b91c1c"}}
+showStatus("Link check complete. A response does not prove the specific page exists.")}
 async function wikiSearch(q){const u=`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&srlimit=6&format=json&origin=*`;const r=await fetch(u);if(!r.ok)throw 0;const d=await r.json();return(d.query?.search||[]).map(x=>({type:"wiki",title:x.title,snippet:x.snippet.replace(/<[^>]+>/g,""),url:`https://en.wikipedia.org/wiki/${encodeURIComponent(x.title.replace(/ /g,"_"))}`}))}
 async function newsSearch(q){const u=`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;const r=await fetch(u);if(!r.ok)throw 0;const x=new DOMParser().parseFromString(await r.text(),"text/xml");return[...x.querySelectorAll("item")].slice(0,8).map(i=>({type:"news",title:i.querySelector("title")?.textContent||"News",snippet:(i.querySelector("description")?.textContent||"").replace(/<[^>]+>/g,"").slice(0,240),url:i.querySelector("link")?.textContent||"#"}))}
-function judgeClaim(claim,sources,hasRisk){
- const rel=sources.length?Math.max(...sources.map(s=>relevance(claim,s))):0;
- const best=sources[0];
- const lower=claim.toLowerCase();
- const contradiction=CONTRA.some(w=>lower.includes(w));
- const absolute=/guaranteed|100%|always|never|cure|miracle/i.test(claim);
- let verdict="Not enough evidence",band="Low",reason="No sufficiently relevant source was found.";
- if(contradiction&&rel>=45&&best){verdict="Contradicted";band=rel>=70?"High":"Medium";reason=`A relevant ${best.quality} source conflicts with or weakens this claim.`}
- else if(rel>=60&&best&&!absolute){verdict="Supported";band=rel>=80?"High":"Medium";reason=`A relevant ${best.quality} source aligns with this claim, but support is not proof.`}
- else if(rel>=40&&best){verdict="Not enough evidence";band="Medium";reason=`A ${best.quality} source is related, but it does not clearly establish this claim.`}
- if(absolute&&verdict==="Supported"){verdict="Not enough evidence";band="Low";reason="Absolute or high-impact wording requires stronger direct evidence."}
- if(hasRisk&&(claimType(claim)!=="general"))reason+=" This is a high-stakes topic; verify with a qualified professional.";
- return{verdict,band,reason,rel,best};
-}
-async function verify(){const text=answerEl.value.trim();if(!text)return showStatus("Paste an AI answer first.");verifyBtn.disabled=true;verifyBtn.textContent="Checking claims…";resultEl.classList.add("hidden");showStatus("Extracting claims and checking evidence…");
-try{const claims=splitClaims(text),q=cleanQuery(claims[0]||text.slice(0,140));let all=[];try{all=await wikiSearch(q)}catch(e){}try{all=all.concat(await newsSearch(q))}catch(e){}
-let scored=all.map(s=>{const quality=classify(s.url);let rel=relevance(claims[0]||text,s);rel=Math.min(100,rel+QUALITY_WEIGHT[quality]);return{...s,quality,relevance:rel}}).filter(s=>s.relevance>=30);
+function judgeClaim(claim,sources,hasRisk){const rel=sources.length?Math.max(...sources.map(s=>relevance(claim,s))):0;const best=sources[0];const lower=claim.toLowerCase();
+const contradiction=CONTRA.some(w=>lower.includes(w));const absolute=/guaranteed|100%|always|never|cure|miracle/i.test(claim);
+let verdict="Not enough evidence",band="Low",reason="No sufficiently relevant source was found.";
+if(contradiction&&rel>=50&&best){verdict="Contradicted";band=rel>=75?"High":"Medium";reason=`A relevant ${best.quality} source conflicts with or weakens this claim.`}
+else if(rel>=65&&best&&!absolute){verdict="Supported";band=rel>=85?"High":"Medium";reason=`A relevant ${best.quality} source aligns with this claim, but support is not proof.`}
+else if(rel>=45&&best){verdict="Not enough evidence";band="Medium";reason=`A ${best.quality} source is related, but it does not clearly establish this claim.`}
+if(absolute&&verdict==="Supported"){verdict="Not enough evidence";band="Low";reason="Absolute or high-impact wording requires stronger direct evidence."}
+if(hasRisk&&claimType(claim)!=="general")reason+=" This is a high-stakes topic; verify with a qualified professional.";
+return{verdict,band,reason,rel,best}}
+async function verify(){const text=answerEl.value.trim();if(!text)return showStatus("Paste an AI answer first.");verifyBtn.disabled=true;verifyBtn.textContent="Checking claims…";resultEl.classList.add("hidden");showStatus("Running Sanity Engine and checking evidence…");
+try{const claims=splitClaims(text),q=buildQuery(claims,text);let all=[];try{all=await wikiSearch(q)}catch(e){}try{all=all.concat(await newsSearch(q))}catch(e){}
+let scored=all.map(s=>{const quality=classify(s.url);let rel=relevance(claims[0]||text,s);rel=Math.min(100,rel+QUALITY_WEIGHT[quality]);return{...s,quality,relevance:rel}}).filter(s=>s.relevance>=45);
 scored=scored.sort((a,b)=>b.relevance-a.relevance).slice(0,8);
-const hasRisk=RISK.some(w=>text.toLowerCase().includes(w));
-const judged=claims.map(c=>({text:c,type:claimType(c),...judgeClaim(c,scored,hasRisk)}));
 const best=scored[0]?.relevance||0,bestQuality=scored[0]?.quality||"none";
-const hasCitations=/https?:\/\//.test(text)||/\[[0-9]+\]/.test(text),hasHedge=HEDGES.some(w=>text.toLowerCase().includes(w)),hasNumbers=/\d/.test(text);
+const hasCitations=/https?:\/\//.test(text)||/\[[0-9]+\]/.test(text),hasHedge=HEDGES.some(w=>text.toLowerCase().includes(w)),hasRisk=RISK.some(w=>text.toLowerCase().includes(w)),hasNumbers=/\d/.test(text);
 let score=52,reasons=[];
-if(best>=70){score+=26;reasons.push(`Strong ${bestQuality} source found`)}else if(best>=50){score+=15;reasons.push(`Relevant ${bestQuality} source found`)}else if(best>=30){score+=6;reasons.push("Weak but possibly relevant source found")}else{score-=10;reasons.push("No sufficiently relevant evidence source found")}
+if(best>=70){score+=26;reasons.push(`Strong ${bestQuality} source found`)}else if(best>=50){score+=15;reasons.push(`Relevant ${bestQuality} source found`)}else if(best>=45){score+=6;reasons.push("Weak but possibly relevant source found")}else{score-=10;reasons.push("No sufficiently relevant evidence source found")}
 if(hasCitations){score+=10;reasons.push("Answer includes citations or links")}if(hasHedge){score+=4;reasons.push("Cautious language used")}
 if(hasNumbers&&!hasCitations){score-=8;reasons.push("Statistics without visible citations")}if(hasRisk){score-=20;reasons.push("High-impact or absolute claims")}
 score=Math.max(10,Math.min(95,Math.round(score)));
-current={text,claims:judged,scored,score,reasons,hasRisk,engine:"Rules engine",stakes:stakes(text)};
+current={text,claims:claims.map(c=>({text:c,type:claimType(c),...judgeClaim(c,scored,hasRisk)})),scored,score,reasons,hasRisk,engine:"Rules engine",stakes:stakes(text)};
 render(current);statusEl.classList.add("hidden")}catch(e){showStatus("Could not fetch sources. Check your connection.")}finally{verifyBtn.disabled=false;verifyBtn.textContent="Check claims"}}
 function showStatus(m){statusEl.textContent=m;statusEl.classList.remove("hidden")}
 function render(d){resultEl.classList.remove("hidden");document.getElementById("score").textContent=d.score;document.getElementById("engine").textContent=d.engine;
@@ -66,8 +83,7 @@ v.textContent=d.score>=75?"Mostly supported":d.score>=55?"Needs verification":"H
 if(d.stakes.length){stakesEl.classList.remove("hidden");stakesEl.innerHTML=`<b>Stakes Guard: ${d.stakes.join(" / ")}</b>Before acting, verify with an authoritative source and consider consulting a qualified professional. Adrex does not provide professional advice.`}else stakesEl.classList.add("hidden");
 const ce=document.getElementById("claims");ce.innerHTML="";document.getElementById("claimCount").textContent=`${d.claims.length} claims`;
 d.claims.forEach(c=>{const e=document.createElement("div");let cls=c.verdict==="Supported"?"supported":c.verdict==="Contradicted"?"contradicted":"insufficient";
-e.className=`claim ${cls}`;let link="";
-if(c.best)link=`<a href="${c.best.url}" target="_blank" rel="noopener">Open best source →</a>`;
+e.className=`claim ${cls}`;let link="";if(c.best)link=`<a href="${c.best.url}" target="_blank" rel="noopener">Open best source →</a>`;
 e.innerHTML=`<strong>${c.verdict} • ${c.band} confidence</strong>${esc(c.text)}<div class="verdict-line">${esc(c.reason)} Type: ${c.type}. ${link}</div>`;ce.appendChild(e)});
 const se=document.getElementById("sources");se.innerHTML="";document.getElementById("sourceCount").textContent=`${d.scored.length} relevant`;if(!d.scored.length)se.innerHTML=`<div class="empty">No sufficiently relevant source found. Add a trusted source manually or verify with an authority.</div>`;
 d.scored.forEach(s=>{const x=document.createElement("div");x.className="source";x.innerHTML=`<div class="source-title"><span class="tag ${s.quality}">${s.quality}</span>${esc(s.title)}</div><div class="source-snippet">${esc(s.snippet)}…</div><div class="source-meta"><a class="source-link" href="${s.url}" target="_blank" rel="noopener">Open source →</a><span class="relevance">${s.relevance}% quality-adjusted match</span></div>`;se.appendChild(x)});

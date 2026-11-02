@@ -1,19 +1,8 @@
-<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="compare.css"><title>Adrex Verity — Compare AI Models</title></head><body>
-<header><div class="brand"><div class="logo">A</div><div><h1>Compare AI Models</h1><p>Paste answers from different AI tools and compare their agreement</p></div></div><button id="back" class="btn ghost">Back</button></header>
-<main>
-<section class="card"><h2>Question / prompt</h2><textarea id="question" placeholder="Paste the question you asked the AI models..."></textarea></section>
-<section class="grid">
-<div class="card"><h2>Model A</h2><textarea id="a" placeholder="Paste ChatGPT answer..."></textarea></div>
-<div class="card"><h2>Model B</h2><textarea id="b" placeholder="Paste Claude answer..."></textarea></div>
-<div class="card"><h2>Model C</h2><textarea id="c" placeholder="Paste Gemini answer..."></textarea></div>
-<div class="card"><h2>Model D</h2><textarea id="d" placeholder="Paste Grok or Perplexity answer..."></textarea></div>
-</section>
-<div class="actions"><button id="compare" class="btn primary">Compare answers</button><button id="clear" class="btn ghost">Clear</button></div>
-<div id="result" class="hidden">
-<div class="card"><h2>Consensus</h2><div id="consensus"></div><p id="consensusNote"></p></div>
-<div class="card"><h2>Shared points</h2><ul id="shared"></ul></div>
-<div class="card"><h2>Unique points</h2><div id="unique"></div></div>
-</div>
-</main>
-<footer>Comparison runs locally. Adrex does not prove any answer is true.</footer>
-<script src="compare.js"></script></body></html>
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="dashboard.css"><title>Adrex Verity — Compare AI Answers</title></head><body>
+<header><div class="brand"><div class="logo">A</div><div><h1>Multi-Model Comparison</h1><p>Paste answers from different AI tools and compare them locally</p></div></div><a class="btn ghost" href="dashboard.html">Dashboard</a></header>
+<main><section class="controls"><input id="question" placeholder="Enter the question you asked the AI models..."></section>
+<section class="grid4"><div class="card"><h3>ChatGPT</h3><textarea id="a1"></textarea></div><div class="card"><h3>Claude</h3><textarea id="a2"></textarea></div><div class="card"><h3>Gemini</h3><textarea id="a3"></textarea></div><div class="card"><h3>Grok / Other</h3><textarea id="a4"></textarea></div></section>
+<div class="actions"><button id="compare" class="btn">Compare answers</button><button id="clear" class="btn ghost">Clear</button></div>
+<div id="status" class="status hidden"></div>
+<section id="result" class="hidden"><div class="card"><h2>Agreement map</h2><div id="pairs"></div></div><div class="card"><h2>Consensus points</h2><div id="consensus"></div></div><div class="card"><h2>Conflicts and differences</h2><div id="conflicts"></div></div><div class="actions"><button id="exportCompare" class="btn">Export comparison report</button></div></section>
+</main><footer>Comparison runs locally. No AI API key is required.</footer><script src="compare.js"></script></body></html>
